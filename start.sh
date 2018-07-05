@@ -5,7 +5,7 @@
 # if you want to make self signed certificates
 # available
 
-sudo update-ca-certificates;
+# sudo update-ca-certificates;
 
 # Check that the environment variable has been set correctly
 if [ -z "$SECRETS_BUCKET_NAME" ]; then
