@@ -1,0 +1,2 @@
+DB_URI="mongodb://ecsuser:xxxxxxx@db1.ve.eacg.intern,db2.ve.eacg.intern,db3.ve.eacg.intern"
+DB_OPTS="replicaSet=s0"

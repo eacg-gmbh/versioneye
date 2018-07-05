@@ -33,11 +33,7 @@ test:
 production:
   clients:
     default:
-      database: veye_prod
-      hosts:
-        - <%= ENV['DB_PORT_27017_TCP_ADDR'] ||= 'localhost' %>:<%= ENV['DB_PORT_27017_TCP_PORT'] ||= '27017' %>
-        # - <%= ENV['MONGO_RS_2_ADDR'] ||= 'localhost' %>:<%= ENV['MONGO_RS_2_PORT'] ||= '27017' %>
-        # - <%= ENV['MONGO_RS_3_ADDR'] ||= 'localhost' %>:<%= ENV['MONGO_RS_3_PORT'] ||= '27017' %>
+      uri: "<%= ENV['DB_URI'] ||= 'mongodb://localhost' %>:<%= ENV['DB_PORT'] ||= '27017' %>/veye_prod?<%= ENV['DB_OPTS' ]%>"
       options:
         max_pool_size: 100
   options:
@@ -50,13 +46,8 @@ enterprise:
   clients:
     # Defines the default session. (required)
     default:
-      # Defines the name of the default database that Mongoid can connect to.
-      # (required).
-      database: veye_enterprise
-      # Provides the hosts the default session can connect to. Must be an array
-      # of host:port pairs. (required)
-      hosts:
-        - <%= ENV['DB_PORT_27017_TCP_ADDR'] ||= 'localhost' %>:<%= ENV['DB_PORT_27017_TCP_PORT'] ||= '27017' %>
+    default:
+      uri: "<%= ENV['DB_URI'] ||= 'mongodb://localhost' %>:<%= ENV['DB_PORT'] ||= '27017' %>/veye_enterprise?<%= ENV['DB_OPTS' ]%>"
       options:
         max_pool_size: 100
   options:

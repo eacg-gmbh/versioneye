@@ -6,8 +6,10 @@ RUN rm -Rf /app; \
 
 ADD . /app
 
+RUN rm -Rf /aws
+
 RUN cd /app/ && bundle install;
 
 EXPOSE 8080
 
-CMD /app/start.sh
+ENTRYPOINT ["/app/start.sh"]
