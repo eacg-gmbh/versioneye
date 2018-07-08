@@ -1,0 +1,143 @@
+Description: >
+    This start versioneye-core and is based on an example of a long running ECS service that serves a JSON API of products.
+
+Parameters: 
+
+    VPC:
+        Description: The VPC that the ECS cluster is deployed to
+        Type: AWS::EC2::VPC::Id
+        
+    Cluster:
+        Description: Please provide the ECS Cluster ID that this service should run on
+        Type: String
+        Default: VE-Container-ECS
+
+    DesiredCount: 
+        Description: How many instances of this task should we run across our cluster?
+        Type: Number
+        Default: 2
+
+    ECSStackName:
+        Description: The name of the ECS container stack
+        Type: String
+
+    Path: 
+        Description: The path to register with the Application Load Balancer
+        Type: String
+        Default: /ve
+
+    SecretsStoreBucket:
+        Description: The s3 store where secrets are defined
+        Type: String
+        Default: secrets.ve.eacg.de
+
+Resources:
+
+    Service: 
+        Type: AWS::ECS::Service
+        DependsOn: ListenerRule
+        Properties: 
+            Cluster: !Ref Cluster
+            Role: !Ref ServiceRole
+            DesiredCount: !Ref DesiredCount
+            TaskDefinition: !Ref TaskDefinition
+            LoadBalancers: 
+                -   ContainerName: "vecore-service"
+                    ContainerPort: 8080
+                    TargetGroupArn: !Ref TargetGroup
+            HealthCheckGracePeriodSeconds: 180
+
+    TaskDefinition:
+        Type: AWS::ECS::TaskDefinition
+        Properties:
+            Family: vecore-service
+            ContainerDefinitions:
+                -   Name: vecore-service
+                    Essential: true
+                    Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye:2.0.0
+                    Memory: 512
+                    PortMappings:
+                        -   ContainerPort: '8080'
+                            HostPort: '8080'
+                    LogConfiguration:
+                      LogDriver: awslogs
+                      Options:
+                          awslogs-group: !Ref AWS::StackName
+                          awslogs-region: !Ref AWS::Region
+                    Environment:
+                        -   Name: SECRETS_BUCKET_NAME
+                            Value: !Ref 'SecretsStoreBucket'
+
+    CloudWatchLogsGroup:
+        Type: AWS::Logs::LogGroup
+        Properties: 
+            LogGroupName: !Ref AWS::StackName
+            RetentionInDays: 14
+
+    TargetGroup:
+        Type: AWS::ElasticLoadBalancingV2::TargetGroup
+        Properties:
+            VpcId: !Ref VPC
+            Port: 8080
+            Protocol: HTTP
+            Matcher: 
+                HttpCode: 200-299
+            HealthCheckIntervalSeconds: 60
+            HealthCheckPath: !Ref Path
+            HealthCheckProtocol: HTTP
+            HealthCheckTimeoutSeconds: 10
+            HealthyThresholdCount: 2
+            UnhealthyThresholdCount: 5
+
+    ListenerRule:
+        Type: AWS::ElasticLoadBalancingV2::ListenerRule
+        Properties:
+            ListenerArn:
+                Fn::ImportValue:
+                    !Sub ${ECSStackName}-ECSListener
+            Priority: 2
+            Conditions:
+                - Field: path-pattern
+                  Values: 
+                    - !Ref Path
+            Actions:
+                - TargetGroupArn: !Ref TargetGroup
+                  Type: forward
+
+    # This IAM Role grants the service access to register/unregister with the 
+    # Application Load Balancer (ALB). It is based on the default documented here:
+    # http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_IAM_role.html
+    ServiceRole: 
+        Type: AWS::IAM::Role
+        Properties: 
+            RoleName: !Sub ecs-service-${AWS::StackName}
+            Path: /
+            AssumeRolePolicyDocument: |
+                {
+                    "Statement": [{
+                        "Effect": "Allow",
+                        "Principal": { "Service": [ "ecs.amazonaws.com" ]},
+                        "Action": [ "sts:AssumeRole" ]
+                    }]
+                }
+            Policies: 
+                - PolicyName: !Sub ecs-service-${AWS::StackName}
+                  PolicyDocument: 
+                    {
+                        "Version": "2012-10-17",
+                        "Statement": [{
+                                "Effect": "Allow",
+                                "Action": [
+                                    "ec2:AuthorizeSecurityGroupIngress",
+                                    "ec2:Describe*",
+                                    "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                                    "elasticloadbalancing:Describe*",
+                                    "elasticloadbalancing:RegisterInstancesWithLoadBalancer",
+                                    "elasticloadbalancing:DeregisterTargets",
+                                    "elasticloadbalancing:DescribeTargetGroups",
+                                    "elasticloadbalancing:DescribeTargetHealth",
+                                    "elasticloadbalancing:RegisterTargets"
+                                ],
+                                "Resource": "*"
+                        }]
+                    }
