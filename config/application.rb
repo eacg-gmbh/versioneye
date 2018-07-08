@@ -68,7 +68,7 @@ module Versioneye
     # config.i18n.default_locale = :en
 
     begin
-      p "application.rb ... instantiate VersioneyeCore ... "
+      p "application.rb ... instantiate VersioneyeCore (EACG version) ... "
       VersioneyeCore.new
     rescue => e
       p e.message
