@@ -1,4 +1,4 @@
-FROM        959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye-core:1.0.1
+FROM        959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye-core:1.0.2
 MAINTAINER  Robert Reiz <reiz@versioneye.com>
 
 RUN rm -rf /app && mkdir /app
