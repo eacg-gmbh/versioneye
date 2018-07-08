@@ -54,7 +54,7 @@ Resources:
             ContainerDefinitions:
                 -   Name: vecore-service
                     Essential: true
-                    Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye:2.0.0
+                    Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye:2.0.1
                     Memory: 512
                     PortMappings:
                         -   ContainerPort: '8080'
