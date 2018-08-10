@@ -33,7 +33,7 @@ test:
 production:
   clients:
     default:
-      uri: "<%= ENV['DB_URI'] ||= 'mongodb://localhost' %>:<%= ENV['DB_PORT'] ||= '27017' %>/veye_prod?<%= ENV['DB_OPTS' ]%>"
+      uri: "<%= ENV['DB_URI'] ||= 'mongodb://localhost' %>:<%= ENV['DB_PORT'] ||= '27017' %>/veye_enterprise?<%= ENV['DB_OPTS' ]%>"
       options:
         max_pool_size: 100
   options:
