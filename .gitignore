@@ -29,3 +29,5 @@ notes.txt
 script/set_vars_for_dev_reiz.sh
 
 tmp/pids/server.pid
+/vepy3/
+/versioneye/

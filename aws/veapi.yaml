@@ -1,5 +1,5 @@
 Description: >
-    This start versioneye-core and is based on an example of a long running ECS service that serves a JSON API of products.
+    This start versioneye-api and is based on an example of a long running ECS service that serves a JSON API of products.
 
 Parameters: 
 
@@ -24,12 +24,15 @@ Parameters:
     Path: 
         Description: The path to register with the Application Load Balancer
         Type: String
-        Default: /ve
+        Default: /api
 
     SecretsStoreBucket:
         Description: The s3 store where secrets are defined
         Type: String
         Default: secrets.ve.eacg.de
+
+Conditions:
+    SimplePath: !Equals ['/', !Ref Path]
 
 Resources:
 
@@ -37,29 +40,29 @@ Resources:
         Type: AWS::ECS::Service
         DependsOn: ListenerRule
         Properties: 
-            ServiceName: vecore
+            ServiceName: veapi
             Cluster: !Ref Cluster
             Role: !Ref ServiceRole
             DesiredCount: !Ref DesiredCount
             TaskDefinition: !Ref TaskDefinition
             LoadBalancers: 
-                -   ContainerName: "vecore-service"
-                    ContainerPort: 8080
+                -   ContainerName: "veapi-service"
+                    ContainerPort: 9090
                     TargetGroupArn: !Ref TargetGroup
             HealthCheckGracePeriodSeconds: 180
 
     TaskDefinition:
         Type: AWS::ECS::TaskDefinition
         Properties:
-            Family: vecore-service
+            Family: veapi-service
             ContainerDefinitions:
-                -   Name: vecore-service
+                -   Name: veapi-service
                     Essential: true
-                    Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye:latest
+                    Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye-api:latest
                     Memory: 1024
                     PortMappings:
-                        -   ContainerPort: '8080'
-                            HostPort: '8080'
+                        -   ContainerPort: '9090'
+                            HostPort: '9090'
                     LogConfiguration:
                       LogDriver: awslogs
                       Options:
@@ -87,7 +90,7 @@ Resources:
         Type: AWS::ElasticLoadBalancingV2::TargetGroup
         Properties:
             VpcId: !Ref VPC
-            Port: 8080
+            Port: 9090
             Protocol: HTTP
             Matcher: 
                 HttpCode: 200-299
@@ -104,16 +107,58 @@ Resources:
             ListenerArn:
                 Fn::ImportValue:
                     !Sub ${ECSStackName}-ECSListener
-            Priority: 2
+            Priority: 1
             Conditions:
                 - Field: path-pattern
                   Values: 
                     - !Ref Path
+                - Field: host-header
+                  Values:
+                    - 'api2.*'
             Actions:
                 - TargetGroupArn: !Ref TargetGroup
                   Type: forward
 
-    # This IAM Role grants the service access to register/unregister with the 
+    ListenerRule2:
+        Type: AWS::ElasticLoadBalancingV2::ListenerRule
+        Properties:
+            ListenerArn:
+                Fn::ImportValue:
+                    !Sub ${ECSStackName}-ECSListener
+            Priority: 2
+            Conditions:
+                - Field: path-pattern
+                  Values:
+                    - !Join
+                        - ''
+                        -   - !Ref Path
+                            - !If [SimplePath, '*', '/*']
+                - Field: host-header
+                  Values:
+                    - 'api2.*'
+            Actions:
+                - TargetGroupArn: !Ref TargetGroup
+                  Type: forward
+
+    ListenerRule3:
+        Type: AWS::ElasticLoadBalancingV2::ListenerRule
+        Properties:
+            ListenerArn:
+                Fn::ImportValue:
+                    !Sub ${ECSStackName}-ECSListener
+            Priority: 10
+            Conditions:
+                - Field: path-pattern
+                  Values:
+                    - '/*'
+                - Field: host-header
+                  Values:
+                    - 'api2.*'
+            Actions:
+                - TargetGroupArn: !Ref TargetGroup
+                  Type: forward
+
+    # This IAM Role grants the service access to register/unregister with the
     # Application Load Balancer (ALB). It is based on the default documented here:
     # http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_IAM_role.html
     ServiceRole: 

@@ -1,0 +1,56 @@
+Description: >
+    This start versioneye-core (memcached) and is based on an example of a long running ECS service that serves a JSON API of products.
+
+Parameters: 
+
+    VPC:
+        Description: The VPC that the ECS cluster is deployed to
+        Type: AWS::EC2::VPC::Id
+        
+    Cluster:
+        Description: Please provide the ECS Cluster ID that this service should run on
+        Type: String
+        Default: VE-Container-ECS
+
+    DesiredCount: 
+        Description: How many instances of this task should we run across our cluster?
+        Type: Number
+        Default: 1
+
+    ECSStackName:
+        Description: The name of the ECS container stack
+        Type: String
+
+Resources:
+
+    Service: 
+        Type: AWS::ECS::Service
+        Properties:
+            Cluster: !Ref Cluster
+            DesiredCount: !Ref DesiredCount
+            TaskDefinition: !Ref TaskDefinition
+            ServiceName: memcached
+
+    TaskDefinition:
+        Type: AWS::ECS::TaskDefinition
+        Properties:
+            Family: memcached-service
+            ContainerDefinitions:
+                -   Name: memcached-service
+                    Essential: true
+                    Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/memcached:latest
+                    Memory: 512
+                    PortMappings:
+                        -   ContainerPort: '11211'
+                            HostPort: '11211'
+                    LogConfiguration:
+                      LogDriver: awslogs
+                      Options:
+                          awslogs-group: !Ref AWS::StackName
+                          awslogs-region: !Ref AWS::Region
+
+    CloudWatchLogsGroup:
+        Type: AWS::Logs::LogGroup
+        Properties: 
+            LogGroupName: !Ref AWS::StackName
+            RetentionInDays: 14

@@ -24,12 +24,15 @@ Parameters:
     Path: 
         Description: The path to register with the Application Load Balancer
         Type: String
-        Default: /ve
+        Default: /
 
     SecretsStoreBucket:
         Description: The s3 store where secrets are defined
         Type: String
         Default: secrets.ve.eacg.de
+
+Conditions:
+    SimplePath: !Equals ['/', !Ref Path]
 
 Resources:
 
@@ -104,8 +107,11 @@ Resources:
             ListenerArn:
                 Fn::ImportValue:
                     !Sub ${ECSStackName}-ECSListener
-            Priority: 2
+            Priority: 4
             Conditions:
+                - Field: host-header
+                  Values:
+                    - 'www2.*'
                 - Field: path-pattern
                   Values: 
                     - !Ref Path
@@ -113,7 +119,46 @@ Resources:
                 - TargetGroupArn: !Ref TargetGroup
                   Type: forward
 
-    # This IAM Role grants the service access to register/unregister with the 
+    ListenerRule2:
+        Type: AWS::ElasticLoadBalancingV2::ListenerRule
+        Properties:
+            ListenerArn:
+                Fn::ImportValue:
+                    !Sub ${ECSStackName}-ECSListener
+            Priority: 5
+            Conditions:
+                - Field: host-header
+                  Values:
+                    - 'www2.*'
+                - Field: path-pattern
+                  Values:
+                    - !Join
+                        - ''
+                        -   - !Ref Path
+                            - !If [SimplePath, '*', '/*']
+            Actions:
+                - TargetGroupArn: !Ref TargetGroup
+                  Type: forward
+
+    ListenerRule3:
+        Type: AWS::ElasticLoadBalancingV2::ListenerRule
+        Properties:
+            ListenerArn:
+                Fn::ImportValue:
+                    !Sub ${ECSStackName}-ECSListener
+            Priority: 11
+            Conditions:
+                - Field: host-header
+                  Values:
+                    - 'www2.*'
+                - Field: path-pattern
+                  Values:
+                    - '/*'
+            Actions:
+                - TargetGroupArn: !Ref TargetGroup
+                  Type: forward
+
+    # This IAM Role grants the service access to register/unregister with the
     # Application Load Balancer (ALB). It is based on the default documented here:
     # http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_IAM_role.html
     ServiceRole: 
