@@ -59,7 +59,7 @@ Resources:
                 -   Name: veapi-service
                     Essential: true
                     Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/versioneye-api:latest
-                    Memory: 1024
+                    Memory: 2048
                     PortMappings:
                         -   ContainerPort: '9090'
                             HostPort: '9090'
