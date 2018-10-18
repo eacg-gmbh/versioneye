@@ -34,7 +34,7 @@ Resources:
             Cluster: !Ref Cluster
             DesiredCount: !Ref DesiredCount
             TaskDefinition: !Ref TaskDefinition
-            ServiceName: crawlr
+            ServiceName: crawlr-schedule
 #            ServiceRegistries:
 #                -   Port: 5672
 #                    RegistryArn: arn:aws:route53:::hostedzone/Z2JK498HMYGAVC
@@ -44,10 +44,10 @@ Resources:
         Properties:
             Family: crawlr-service
             ContainerDefinitions:
-                -   Name: crawlr-service
+                -   Name: crawlr-schedule
                     Essential: true
                     Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/crawlr:latest
-                    Memory: 1024
+                    Memory: 1536
                     LogConfiguration:
                       LogDriver: awslogs
                       Options:
@@ -65,9 +65,9 @@ Resources:
                         -   Name: MC_PORT_11211_TCP_PORT
                             Value: '11211'
                         -   Name: SV_PROG_NAME
-                            Value: ''
+                            Value: 'schedule'
                         -   Name: SV_CMD
-                            Value: ''
+                            Value: '/app/scheduler.sh'
 
 
     CloudWatchLogsGroup:
