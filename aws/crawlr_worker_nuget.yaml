@@ -34,7 +34,7 @@ Resources:
             Cluster: !Ref Cluster
             DesiredCount: !Ref DesiredCount
             TaskDefinition: !Ref TaskDefinition
-            ServiceName: crawlr-worker-npm
+            ServiceName: crawlr-worker-nuget
 #            ServiceRegistries:
 #                -   Port: 5672
 #                    RegistryArn: arn:aws:route53:::hostedzone/Z2JK498HMYGAVC
@@ -44,7 +44,7 @@ Resources:
         Properties:
             Family: crawlr-worker
             ContainerDefinitions:
-                -   Name: crawlr-worker-npm
+                -   Name: crawlr-worker-nuget
                     Essential: true
                     Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/crawlr:latest
                     Memory: 1536
@@ -69,9 +69,9 @@ Resources:
                         -   Name: ES_PORT_9200_TCP_PORT
                             Value: '443'
                         -   Name: SV_PROG_NAME
-                            Value: 'npm_worker'
+                            Value: 'nuget_worker'
                         -   Name: SV_CMD
-                            Value: '/app/worker.sh npm_crawl_worker'
+                            Value: '/app/worker.sh nuget_crawl_worker'
 
 
     CloudWatchLogsGroup:

@@ -69,13 +69,17 @@ Resources:
                         -   Name: SECRETS_BUCKET_NAME
                             Value: !Ref 'SecretsStoreBucket'
                         -   Name: RM_PORT_5672_TCP_ADDR
-                            Value: 'rabbitmq-service.ve.eacg.intern'
+                            Value: '86ae6030-6bf1-4657-a52e-cb5dfe85942e.rabbitmq.ve.eacg.local'
                         -   Name: RM_PORT_5672_TCP_PORT
                             Value: '5672'
                         -   Name: MC_PORT_11211_TCP_ADDR
                             Value: 'memcached-service.ve.eacg.intern'
                         -   Name: MC_PORT_11211_TCP_PORT
                             Value: '11211'
+                        -   Name: ES_PORT_9200_TCP_ADDR
+                            Value: 'vpc-ve-eacg-i2to72joesagqx74qm3jgeop4e.eu-central-1.es.amazonaws.com'
+                        -   Name: ES_PORT_9200_TCP_PORT
+                            Value: '443'
 
     CloudWatchLogsGroup:
         Type: AWS::Logs::LogGroup
