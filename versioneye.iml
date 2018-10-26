@@ -113,6 +113,7 @@
     <orderEntry type="library" scope="PROVIDED" name="puma (v3.9.1, rbenv: 2.3.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rack (v2.0.5, rbenv: 2.3.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rack-test (v1.1.0, rbenv: 2.3.7) [gem]" level="application" />
+    <orderEntry type="library" scope="PROVIDED" name="rails (v5.1.4, rbenv: 2.3.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rails-assets-bootstrap (v3.3.7, rbenv: 2.3.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rails-assets-chartjs (v2.5.0, rbenv: 2.3.7) [gem]" level="application" />
     <orderEntry type="library" scope="PROVIDED" name="rails-assets-handlebars (v4.0.10, rbenv: 2.3.7) [gem]" level="application" />
