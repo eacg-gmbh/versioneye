@@ -49,7 +49,10 @@ Versioneye::Application.configure do
 
   # Use a different logger for distributed setups
   # config.logger = SyslogLogger.new
-  config.logger = Logger.new("#{Rails.root}/log/#{Rails.env}_app.log", 10, 10.megabytes)
+  # config.logger = Logger.new("#{Rails.root}/log/#{Rails.env}_app.log", 10, 10.megabytes)
+  logger           = ActiveSupport::Logger.new(STDOUT)
+  logger.formatter = config.log_formatter
+  config.logger    = ActiveSupport::TaggedLogging.new(logger)
 
   # Use a different cache store in production
   # config.cache_store = :mem_cache_store
@@ -69,7 +72,7 @@ Versioneye::Application.configure do
 
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-     :address              => 'email-smtp.eu-west-1.amazonaws.com',
+     :address              => 'email-smtp.eu-central-1.amazonaws.com',
      :port                 => 587,
      :user_name            => Settings.instance.smtp_username,
      :password             => Settings.instance.smtp_password,

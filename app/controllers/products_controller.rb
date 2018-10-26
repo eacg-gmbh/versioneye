@@ -22,7 +22,7 @@ class ProductsController < ApplicationController
       flash.now[:error] = 'the character % is not allowed'
     else
       languages = get_language_array(@lang)
-      logger.info 'Products_controller query: ' + @query
+      Rails.logger.info 'Products_controller query: ' + @query
       @products = ProductService.search( @query, @groupid, languages, params[:page].to_i)
     end
     @languages = Product::A_LANGS_FILTER
@@ -36,6 +36,7 @@ class ProductsController < ApplicationController
     build    = Version.decode_version ( params[:build] )
 
     @product = ProductService.fetch_product lang, prod_key, version
+    Rails.logger.info 'ProductService.fetch_product: #{lang} #{prod_key} #{version} -- ' + lang + '-' + prod_key + lang + '-' + version
     if @product.nil?
       render :status => 200
       return

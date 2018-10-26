@@ -137,7 +137,7 @@
           The VersionEye database is accessible through the <a href="/api">VersionEye API</a>.
           Every open source project in our database has a page at VersionEye.com where the collected meta information can be viewed.
         </p>
-        <h3 class="section-heading">Most followed libraries</h2>
+        <h3 class="section-heading">Most followed libraries</h3>
         <% @most_followed.each_with_index do |prod, i| %>
           <div class="prod-item">
             <div>
@@ -145,7 +145,7 @@
                 <a href = "<%= products_path(lang: prod.language_esc, key: prod.to_param) %>"><%= prod.name %></a><br/>
                 <%= prod.short_summary %><br/>
                 <span class="small"> Followers: <%= prod.followers %> | License: <%= prod.license_info %> </span>
-              </span>
+              </p>
             </div>
           </div>
         <% end %>
