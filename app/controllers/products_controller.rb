@@ -22,6 +22,7 @@ class ProductsController < ApplicationController
       flash.now[:error] = 'the character % is not allowed'
     else
       languages = get_language_array(@lang)
+      logger.info 'Products_controller query: ' + @query
       @products = ProductService.search( @query, @groupid, languages, params[:page].to_i)
     end
     @languages = Product::A_LANGS_FILTER
