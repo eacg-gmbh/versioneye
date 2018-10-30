@@ -24,6 +24,7 @@ class ProductsController < ApplicationController
       languages = get_language_array(@lang)
       Rails.logger.info 'Products_controller query: ' + @query
       @products = ProductService.search( @query, @groupid, languages, params[:page].to_i)
+      Rails.logger.info 'Products_controller query: ' + @query
     end
     @languages = Product::A_LANGS_FILTER
   end
@@ -36,7 +37,7 @@ class ProductsController < ApplicationController
     build    = Version.decode_version ( params[:build] )
 
     @product = ProductService.fetch_product lang, prod_key, version
-    Rails.logger.info 'ProductService.fetch_product: #{lang} #{prod_key} #{version} -- ' + lang + '-' + prod_key + lang + '-' + version
+    Rails.logger.info 'ProductService.fetch_product: #{lang} #{prod_key} #{version} -- ' + lang + '-' + prod_key + '-' + version
     if @product.nil?
       render :status => 200
       return

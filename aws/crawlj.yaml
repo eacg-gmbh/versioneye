@@ -47,7 +47,7 @@ Resources:
                 -   Name: crawlj-service
                     Essential: true
                     Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/crawlj:latest
-                    Memory: 1024
+                    Memory: 4196
                     LogConfiguration:
                       LogDriver: awslogs
                       Options:
@@ -72,7 +72,19 @@ Resources:
                             Value: 'vpc-ve-eacg-i2to72joesagqx74qm3jgeop4e.eu-central-1.es.amazonaws.com'
                         -   Name: ES_PORT_9200_TCP_PORT
                             Value: '443'
-
+                    Volumes:
+                        -   Name: 'scratch',
+                        -   DockerVolumeConfiguration:
+                                Scope": 'task'
+                                Autoprovision": true,
+                                Driver: 'local'
+                                Labels:
+                                    -   Name: 'scratch'
+                                        Value: 'space'
+        }
+    }
+}
+]
     CloudWatchLogsGroup:
         Type: AWS::Logs::LogGroup
         Properties: 
