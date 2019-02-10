@@ -1,0 +1,146 @@
+{
+  "ipcMode": null,
+  "executionRoleArn": "arn:aws:iam::959013096341:role/VE-Container-security-TaskExecutionRole-12UJ789Y6PQSE",
+  "containerDefinitions": [
+    {
+      "dnsSearchDomains": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "VE-Container-security-fargate",
+          "awslogs-region": "eu-central-1"
+        }
+      },
+      "entryPoint": [],
+      "portMappings": [],
+      "command": [],
+      "linuxParameters": null,
+      "cpu": 1024,
+      "environment": [
+        {
+          "name": "ES_PORT_9200_TCP_ADDR",
+          "value": "vpc-ve-eacg-i2to72joesagqx74qm3jgeop4e.eu-central-1.es.amazonaws.com"
+        },
+        {
+          "name": "ES_PORT_9200_TCP_PORT",
+          "value": "443"
+        },
+        {
+          "name": "MC_PORT_11211_TCP_ADDR",
+          "value": "memcached-service.ve.eacg.intern"
+        },
+        {
+          "name": "MC_PORT_11211_TCP_PORT",
+          "value": "11211"
+        },
+        {
+          "name": "RM_PORT_5672_TCP_ADDR",
+          "value": "rabbitmq-service.ve.eacg.intern"
+        },
+        {
+          "name": "RM_PORT_5672_TCP_PORT",
+          "value": "5672"
+        },
+        {
+          "name": "SECRETS_BUCKET_NAME",
+          "value": "secrets.ve.eacg.de"
+        }
+      ],
+      "ulimits": [],
+      "dnsServers": [],
+      "mountPoints": [],
+      "workingDirectory": null,
+      "secrets": null,
+      "dockerSecurityOptions": [],
+      "memory": 4096,
+      "memoryReservation": null,
+      "volumesFrom": [],
+      "image": "959013096341.dkr.ecr.eu-central-1.amazonaws.com/crawl-security:latest",
+      "disableNetworking": null,
+      "interactive": null,
+      "healthCheck": null,
+      "essential": true,
+      "links": [],
+      "hostname": null,
+      "extraHosts": [],
+      "pseudoTerminal": null,
+      "user": null,
+      "readonlyRootFilesystem": null,
+      "dockerLabels": {},
+      "systemControls": null,
+      "privileged": null,
+      "name": "security-crawlr-fg"
+    }
+  ],
+  "placementConstraints": [],
+  "memory": null,
+  "taskRoleArn": "arn:aws:iam::959013096341:role/VE-Container-security-TaskRole-ALS60PUL9C55",
+  "compatibilities": [
+    "EC2"
+  ],
+  "taskDefinitionArn": "arn:aws:ecs:eu-central-1:959013096341:task-definition/security-crawlr:9",
+  "family": "security-crawlr",
+  "requiresAttributes": [
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.execution-role-ecr-pull"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.task-eni"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.ecr-auth"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.task-iam-role"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "ecs.capability.execution-role-awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
+    },
+    {
+      "targetId": null,
+      "targetType": null,
+      "value": null,
+      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
+    }
+  ],
+  "pidMode": null,
+  "requiresCompatibilities": [],
+  "networkMode": "awsvpc",
+  "cpu": null,
+  "revision": 9,
+  "status": "ACTIVE",
+  "volumes": []
+}

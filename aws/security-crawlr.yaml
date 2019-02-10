@@ -1,76 +1,138 @@
 Description: >
-    This start versioneye-security (security) and is based on an example of a long running ECS service that serves a JSON API of products.
+  This start versioneye-security (security) and is based on an example of a long running ECS service that serves a JSON API of products.
 
-Parameters: 
+Parameters:
 
-    VPC:
-        Description: The VPC that the ECS cluster is deployed to
-        Type: AWS::EC2::VPC::Id
-        
-    Cluster:
-        Description: Please provide the ECS Cluster ID that this service should run on
-        Type: String
-        Default: VE-Container-ECS
+  VPC:
+    Description: The VPC that the ECS cluster is deployed to
+    Type: AWS::EC2::VPC::Id
 
-    DesiredCount: 
-        Description: How many instances of this task should we run across our cluster?
-        Type: Number
-        Default: 1
+  Cluster:
+    Description: Please provide the ECS Cluster ID that this service should run on
+    Type: String
+    Default: VE-Container-ECS
 
-    ECSStackName:
-        Description: The name of the ECS container stack
-        Type: String
+  DesiredCount:
+    Description: How many instances of this task should we run across our cluster?
+    Type: Number
+    Default: 1
 
-    SecretsStoreBucket:
-        Description: The s3 store where secrets are defined
-        Type: String
-        Default: secrets.ve.eacg.de
+  ECSStackName:
+    Description: The name of the ECS container stack
+    Type: String
+
+  SecretsStoreBucket:
+    Description: The s3 store where secrets are defined
+    Type: String
+    Default: secrets.ve.eacg.de
 
 Resources:
 
-    Service: 
-        Type: AWS::ECS::Service
-        Properties:
-            Cluster: !Ref Cluster
-            DesiredCount: !Ref DesiredCount
-            TaskDefinition: !Ref TaskDefinition
-            ServiceName: security-crawlr
-#            ServiceRegistries:
-#                -   Port: 5672
-#                    RegistryArn: arn:aws:route53:::hostedzone/Z2JK498HMYGAVC
+  Service:
+    Type: AWS::ECS::Service
+    Properties:
+      Cluster: !Ref Cluster
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref TaskDefinition
+      ServiceName: security-crawlr
+  #            ServiceRegistries:
+  #                -   Port: 5672
+  #                    RegistryArn: arn:aws:route53:::hostedzone/Z2JK498HMYGAVC
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 
-    TaskDefinition:
-        Type: AWS::ECS::TaskDefinition
-        Properties:
-            Family: security-crawlr
-            ContainerDefinitions:
-                -   Name: security-crawlr
-                    Essential: true
-                    Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/crawl-security:latest
-                    Memory: 1024
-                    LogConfiguration:
-                      LogDriver: awslogs
-                      Options:
-                          awslogs-group: !Ref AWS::StackName
-                          awslogs-region: !Ref AWS::Region
-                    Environment:
-                        -   Name: SECRETS_BUCKET_NAME
-                            Value: !Ref 'SecretsStoreBucket'
-                        -   Name: RM_PORT_5672_TCP_ADDR
-                            Value: '86ae6030-6bf1-4657-a52e-cb5dfe85942e.rabbitmq.ve.eacg.local'
-                        -   Name: RM_PORT_5672_TCP_PORT
-                            Value: '5672'
-                        -   Name: MC_PORT_11211_TCP_ADDR
-                            Value: 'memcached-service.ve.eacg.intern'
-                        -   Name: MC_PORT_11211_TCP_PORT
-                            Value: '11211'
-                        -   Name: ES_PORT_9200_TCP_ADDR
-                            Value: 'vpc-ve-eacg-i2to72joesagqx74qm3jgeop4e.eu-central-1.es.amazonaws.com'
-                        -   Name: ES_PORT_9200_TCP_PORT
-                            Value: '443'
+  TaskExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
 
-    CloudWatchLogsGroup:
-        Type: AWS::Logs::LogGroup
-        Properties: 
-            LogGroupName: !Ref AWS::StackName
-            RetentionInDays: 14
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: security-crawlr
+      ContainerDefinitions:
+        - Name: security-crawlr
+          Essential: true
+          Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/crawl-security:latest
+          Memory: 2048
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Ref AWS::StackName
+              awslogs-region: !Ref AWS::Region
+          Environment:
+            - Name: SECRETS_BUCKET_NAME
+              Value: !Ref 'SecretsStoreBucket'
+            - Name: RM_PORT_5672_TCP_ADDR
+              Value: 'rabbitmq-service.ve.eacg.intern'
+            - Name: RM_PORT_5672_TCP_PORT
+              Value: '5672'
+            - Name: MC_PORT_11211_TCP_ADDR
+              Value: 'memcached-service.ve.eacg.intern'
+            - Name: MC_PORT_11211_TCP_PORT
+              Value: '11211'
+            - Name: ES_PORT_9200_TCP_ADDR
+              Value: 'vpc-ve-eacg-i2to72joesagqx74qm3jgeop4e.eu-central-1.es.amazonaws.com'
+            - Name: ES_PORT_9200_TCP_PORT
+              Value: '443'
+
+  TaskDefinitionFG:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: security-crawlr
+      NetworkMode: awsvpc
+      TaskRoleArn: !GetAtt TaskRole.Arn
+      ExecutionRoleArn: !GetAtt TaskExecutionRole.Arn
+      ContainerDefinitions:
+        - Name: security-crawlr-fg
+          Essential: true
+          Image: 959013096341.dkr.ecr.eu-central-1.amazonaws.com/crawl-security:latest
+          Cpu: 1024
+          Memory: 4096
+          LogConfiguration:
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Sub ${AWS::StackName}-fargate
+              awslogs-region: !Ref AWS::Region
+          Environment:
+            - Name: SECRETS_BUCKET_NAME
+              Value: !Ref 'SecretsStoreBucket'
+            - Name: RM_PORT_5672_TCP_ADDR
+              Value: 'rabbitmq-service.ve.eacg.intern'
+            - Name: RM_PORT_5672_TCP_PORT
+              Value: '5672'
+            - Name: MC_PORT_11211_TCP_ADDR
+              Value: 'memcached-service.ve.eacg.intern'
+            - Name: MC_PORT_11211_TCP_PORT
+              Value: '11211'
+            - Name: ES_PORT_9200_TCP_ADDR
+              Value: 'vpc-ve-eacg-i2to72joesagqx74qm3jgeop4e.eu-central-1.es.amazonaws.com'
+            - Name: ES_PORT_9200_TCP_PORT
+              Value: '443'
+
+  CloudWatchLogsGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Ref AWS::StackName
+      RetentionInDays: 14
